@@ -62,12 +62,12 @@ Variables *must be passed on the same command line when running the script* unle
 
 ### Other information
 
-`awscli` supports multiple resources in their API calls, and I believe in some cases can support up to 1,000 resource IDs or ARNs.
+`awscli` supports multiple resources in API calls, and I believe in some cases can support up to 1,000 resource IDs or ARNs.
 
-Since their APIs are optimized for this, if you need to tag 1,000 EC2 instances, it would be much quicker to get a list of those instances and pass them all at once, rather than making a separate API call to tag
+Since AWS APIs are optimized for this, if you need to tag 1,000 EC2 instances, it would be much quicker to get a list of those instances and pass them all at once, rather than making a separate API call to tag
 each instance.  See examples below.
 
-** Rather than doing this: **
+**Rather than doing this:**
 
 ```sh
 for i in $(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text); do
@@ -75,6 +75,6 @@ for i in $(aws ec2 describe-instances --query "Reservations[*].Instances[*].Inst
 done
 ```
 
-** It would probably be more efficient to do this: **
+**It would probably be more efficient to do this:**
 
 `RESOURCES="$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text | tr "\n" " ")" ./autotags.sh ec2`
