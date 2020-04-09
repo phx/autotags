@@ -77,4 +77,4 @@ done
 
 **It would probably be more efficient to do this:**
 
-`RESOURCES="$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text | tr "\n" " ")" ./autotags.sh ec2`
+`RESOURCES="$(aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text | tr '\n' ' ')" ./autotags.sh ec2`
