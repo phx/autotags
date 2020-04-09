@@ -39,7 +39,7 @@ Script variables can be passed in as both command line parameters, as well as en
 
 **It's only looking for 3 things:**
 - `$API` (or first argument)
-- `$RESOURCES` (or second argument)
+- `$RESOURCES` (or every argument after `$1` unless `$API` is defined AND `resources` or `arn` is passed as `$1`)
 - `$FILE` (or a file in the same directory named `tags.csv`)
 
 **Caveats:**  This script does not work with `.xlsx` or Excel-specific filetypes -- **ONLY CSV!**
