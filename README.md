@@ -14,7 +14,7 @@ I'm using it for work, but there is nothing organization-specific about it, so I
 
 ```sh
 
-Usage: ./autotags.sh <API> <RESOURCES>
+Usage: ./autotags.sh [API] [RESOURCES]
 
 $API and $RESOURCES can also be specified as environment variables.
 

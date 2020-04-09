@@ -7,7 +7,7 @@ RESOURCES="${RESOURCES:-"${@:2}"}"
 
 usage() {
   echo "
-Usage: $0 <API> <RESOURCES>
+Usage: $0 [API] [RESOURCES]
 
 \$API and \$RESOURCES can also be specified as environment variables.
 
