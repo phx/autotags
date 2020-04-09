@@ -44,6 +44,14 @@ Script variables can be passed in as both command line parameters, as well as en
 
 ---
 
+## Caveats
+
+**This script does not work with `.xlsx` or Excel-specific filetypes -- ONLY CSV!**
+
+Furthermore, your CSV file should be in the format of *raw, comma-separated values* -- **NO QUOTES!**
+
+---
+
 ### Example one-liner with command line arguments
 
 `./autotags.sh ec2 instance-1-id instance-2-id instance-3-id`
