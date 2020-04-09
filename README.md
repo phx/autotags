@@ -19,17 +19,23 @@ Script variables can be passed in as both command line parameters, as well as en
 - `$RESOURCES` (or second argument)
 - `$FILE` (or a file in the same directory named `tags.csv`)
 
-### Example with command line arguments
+---
+
+### Example one-liner with command line arguments
 
 `./autotags.sh ec2 instance-1-id instance-2-id instance-3-id`
 
 This will apply the key/value pairs listed in `tags.csv` to the 3 instances passed on the command line.
 
-### Example with environment variables
+### Example one-liner with environment variables
 
 `FILE='/home/ubuntu/Downloads/my_spreadsheet.csv' API=ec2 RESOURCES='instance-1-id instance-2-id instance-3-id' ./autotags.sh`
 
 This will apply the key/value pairs listed in `/home/ubuntu/Downloads/my_spreadsheet.csv` to the 3 EC2 instances that are separated by spaces in the `$RESOURCES` variable.
+
+Variables *must be passed on the same command line when running the script* unless you `export` them first.
+
+---
 
 ### Other information
 
