@@ -77,4 +77,5 @@ while read line; do
     VALUE="$(echo "$line" | cut -d',' -f2)"
   fi
   apply_tags
+  echo "${KEY}: ${VALUE}"
 done < "$FILE"
