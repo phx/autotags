@@ -58,6 +58,9 @@ apply_tags() {
   # EC2:
   elif [[ $API = 'ec2' ]]; then
     aws "$API" create-tags --resources "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+  # ELB:
+  elif [[ $API = 'elb' ]]; then
+    aws elbv2 add-tags --resource-arns "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # Other APIs:
   else
     aws "$API" tag-resources --resource-arn-list "$RESOURCES" --tags="${KEY}",Value="${VALUE}"
