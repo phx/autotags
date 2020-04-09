@@ -12,6 +12,29 @@ I'm using it for work, but there is nothing organization-specific about it, so I
 
 ## Usage
 
+```sh
+
+Usage: ./autotags.sh <API> <RESOURCES>
+
+$API and $RESOURCES can also be specified as environment variables.
+
+Note: If $API is specified as an environment variable,
+      the first argument must include the word 'resource' or 'arn',
+      followed by the resources you wish to tag.
+
+By default, ./autotags.sh looks for 'tags.csv' in the current directory.
+If you wish to use a different CSV file, you can specify it at runtime
+by passing it as the $FILE environment variable.
+
+Examples:
+
+1) FILE=/home/ubuntu/my_tags.csv ./autotags.sh ec2 [instance-id] [instance-id] [instance-id]
+2) RESOURCES='instance-1-id instance-2-id instance-3-id' API=ec2 ./autotags.sh
+3) API=ec2 ./autotags.sh resources [instance-id] [intance-id] [instance-id]
+4) ./autotags.sh acm [certificate-arn]
+
+```
+
 Script variables can be passed in as both command line parameters, as well as environment variables.
 
 **It's only looking for 3 things:**
