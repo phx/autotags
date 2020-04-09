@@ -68,7 +68,13 @@ apply_tags() {
 echo "RESOURCES: ${RESOURCES}"
 
 while read line; do
-  KEY="$(echo "$line" | cut -d',' -f1)"
-  VALUE="$(echo "$line" | cut -d',' -f2)"
+  # Attempt to allow for quoted cell values:
+  if [[ -n $(echo "$line" | grep '"') ]]; then
+    KEY="$(echo "$line" | awk -F '","' '{print $1}' | tr -d '"')"
+    VALUE="$(echo "$line" | awk -F '","' '{print $2}' | tr -d '"')"
+  else
+    KEY="$(echo "$line" | cut -d',' -f1)"
+    VALUE="$(echo "$line" | cut -d',' -f2)"
+  fi
   apply_tags
 done < "$FILE"
