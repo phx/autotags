@@ -1,0 +1,10 @@
+# DELETE THIS LINE (INFO-ONLY): DO NOT INCLUDE COLUMN HEADERS IN YOUR CSV FILE!
+Name,Resource Name
+Created-By,Firstname Lastname
+Environment,PRODUCTION
+Application,Application Name
+Backup,True
+PCI,False
+PII,True
+AnotherKey,Another Value
+RandomKey,RandomValue
