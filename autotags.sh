@@ -3,13 +3,49 @@
 set -e
 
 FILE="${FILE:-"tags.csv"}"
-API="${API:-"$1"}"
 RESOURCES="${RESOURCES:-"${@:2}"}"
 
+usage() {
+  echo "
+Usage: $0 <API> <RESOURCES>
+
+\$API and \$RESOURCES can also be specified as environment variables.
+
+Note: If \$API is specified as an environment variable,
+      the first argument must include the word 'resource' or 'arn',
+      followed by the resources you wish to tag.
+
+By default, $0 looks for 'tags.csv' in the current directory.
+If you wish to use a different CSV file, you can specify it at runtime
+by passing it as the \$FILE environment variable.
+
+Examples:
+
+1) FILE=/home/ubuntu/my_tags.csv $0 ec2 [instance-id] [instance-id] [instance-id]
+2) RESOURCES='instance-1-id instance-2-id instance-3-id' API=ec2 $0
+3) API=ec2 $0 resources [instance-id] [intance-id] [instance-id]
+4) $0 acm [certificate-arn]
+"
+}
+
+# Show help:
+if [[ ($(echo "$1" | grep -i '\-h')) || ($(echo "$1" | grep -i 'help')) ]]; then
+  usage
+  exit
+fi
+
+# Allow passing all resources as arguments if $API is set:
+if [[ (-z $(echo "$1" | grep -i 'resource')) || (-z $(echo $1 | grep -i 'arn')) ]]; then
+  API="${API:-"$1"}"
+fi
+
+# Prompt user if API is not specified:
 if [[ -z $API ]]; then
   read -rp 'API Service (lowercase): ' API
   echo
 fi
+
+# Prompt user if resources are not specified:
 if [[ -z $RESOURCES ]]; then
   read -rp 'ARNs or Resource IDs (separated by space): ' RESOURCES
   echo
@@ -28,8 +64,7 @@ apply_tags() {
   fi
 }
 
-# SCRIPT START:
-
+# Start tagging:
 echo "RESOURCES: ${RESOURCES}"
 
 while read line; do
