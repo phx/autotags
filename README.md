@@ -42,13 +42,7 @@ Script variables can be passed in as both command line parameters, as well as en
 - `$RESOURCES` (or second argument)
 - `$FILE` (or a file in the same directory named `tags.csv`)
 
----
-
-## Caveats
-
-**This script does not work with `.xlsx` or Excel-specific filetypes -- ONLY CSV!**
-
-Furthermore, your CSV file should be in the format of *raw, comma-separated values* -- **NO QUOTES!**
+**Caveats:**  This script does not work with `.xlsx` or Excel-specific filetypes -- **ONLY CSV!**
 
 ---
 
