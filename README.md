@@ -12,7 +12,7 @@ I'm using it for work, but there is nothing organization-specific about it, so I
 
 ## Usage
 
-```sh
+```
 
 Usage: ./autotags.sh [API] [RESOURCES]
 
@@ -38,7 +38,7 @@ acm
 ec2
 elb
 elbv2
-s3
+s3api
 ```
 
 Script variables can be passed in as both command line parameters, as well as environment variables.
