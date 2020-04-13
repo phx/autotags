@@ -33,6 +33,11 @@ Examples:
 3) API=ec2 ./autotags.sh resources [instance-id] [intance-id] [instance-id]
 4) ./autotags.sh acm [certificate-arn]
 
+Tested APIs:
+acm
+ec2
+elb
+elbv2
 ```
 
 Script variables can be passed in as both command line parameters, as well as environment variables.

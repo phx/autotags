@@ -25,6 +25,12 @@ Examples:
 2) RESOURCES='instance-1-id instance-2-id instance-3-id' API=ec2 $0
 3) API=ec2 $0 resources [instance-id] [intance-id] [instance-id]
 4) $0 acm [certificate-arn]
+
+Verified supported APIs:
+acm
+ec2
+elb
+elbv2
 "
 }
 
@@ -60,6 +66,9 @@ apply_tags() {
     aws "$API" create-tags --resources "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # ELB:
   elif [[ $API = 'elb' ]]; then
+  # ELBv2:
+    aws "$API" add-tags --load-balancer-names "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+  elif [[ $API = 'elbv2' ]]; then
     aws elbv2 add-tags --resource-arns "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # Other APIs:
   else
