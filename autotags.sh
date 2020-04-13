@@ -31,6 +31,7 @@ acm
 ec2
 elb
 elbv2
+s3api
 "
 }
 
@@ -60,14 +61,14 @@ fi
 apply_tags() {
   # AWS Certificate Manager:
   if [[ $API = 'acm' ]]; then
-    aws "$API" add-tags-to-certificate --certificate-arn "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws acm add-tags-to-certificate --certificate-arn "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # EC2:
   elif [[ $API = 'ec2' ]]; then
-    aws "$API" create-tags --resources "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws ec2 create-tags --resources "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # ELB:
   elif [[ $API = 'elb' ]]; then
   # ELBv2:
-    aws "$API" add-tags --load-balancer-names "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws elb add-tags --load-balancer-names "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   elif [[ $API = 'elbv2' ]]; then
     aws elbv2 add-tags --resource-arns "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   # Other APIs:
@@ -79,15 +80,42 @@ apply_tags() {
 # Start tagging:
 echo "RESOURCES: ${RESOURCES}"
 
-while read line; do
-  # Attempt to allow for quoted cell values:
-  if [[ -n $(echo "$line" | grep '"') ]]; then
-    KEY="$(echo "$line" | awk -F '","' '{print $1}' | tr -d '"')"
-    VALUE="$(echo "$line" | awk -F '","' '{print $2}' | tr -d '"')"
-  else
-    KEY="$(echo "$line" | cut -d',' -f1)"
-    VALUE="$(echo "$line" | cut -d',' -f2)"
+# S3:
+if [[ ($API = 's3') || ($API = 's3api') ]]; then
+  if ! command -v mlr >/dev/null; then
+    echo 'miller package is required for s3 tagging.'
+    echo 'please install miller before proceeding.'
+    exit 1
   fi
-  apply_tags
-  echo "${KEY}: ${VALUE}"
-done < "$FILE"
+  if ! command -v jq >/dev/null; then
+    echo 'jq package is required for s3 tagging.'
+    echo 'please install jq before proceeding.'
+    exit 1
+  fi
+  json="tags.json"
+  echo '{' > "$json"
+  echo '   "TagSet": [' >> "$json"
+  #mlr --c2j --jlistwrap cat "$FILE" >> "tags.json"
+  mlr --c2j cat "$FILE" | sed -e "s/\", \"/\",\\n\"/g;s/{/{\n/;s/}/\n}/" | awk '{$1=$1}1' | sed 's/{/     {/g;s/"Key/       "Key/g;s/"Value/       "Value/g;s/}/     },/g' >> "$json"
+  head -n -1 "$json" > tmp && mv tmp "$json"
+  echo '     }' >> "$json"
+  echo '   ]' >> "$json"
+  echo '}' >> "$json"
+  jq '(..|select(type == "number")) |= tostring' "$json" > tmp && mv tmp "$json"
+  aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
+  rm -f "$json"
+# EVERYTHING ELSE:
+else
+  awk 'NR>1' "$FILE" | while read line; do
+    # Attempt to allow for quoted cell values:
+    if [[ -n $(echo "$line" | grep '"') ]]; then
+      KEY="$(echo "$line" | awk -F '","' '{print $1}' | tr -d '"')"
+      VALUE="$(echo "$line" | awk -F '","' '{print $2}' | tr -d '"')"
+    else
+      KEY="$(echo "$line" | cut -d',' -f1)"
+      VALUE="$(echo "$line" | cut -d',' -f2)"
+    fi
+    apply_tags
+    echo "${KEY}: ${VALUE}"
+  done
+fi

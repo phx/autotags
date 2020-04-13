@@ -38,6 +38,7 @@ acm
 ec2
 elb
 elbv2
+s3
 ```
 
 Script variables can be passed in as both command line parameters, as well as environment variables.
@@ -47,7 +48,9 @@ Script variables can be passed in as both command line parameters, as well as en
 - `$RESOURCES` (or every argument after `$1` unless `$API` is defined *AND* `resources` or `arns` is passed as `$1`)
 - `$FILE` (or a file in the same directory named `tags.csv`)
 
-**Caveats:**  This script does not work with `.xlsx` or Excel-specific filetypes -- **ONLY CSV!**
+**Caveats:**
+- This script does not work with `.xlsx` or Excel-specific filetypes -- **ONLY CSV!**
+- `mlr` (miller) and `jq` are required for tagging S3 resources.
 
 ---
 
