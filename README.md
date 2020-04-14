@@ -72,6 +72,8 @@ Variables *must be passed on the same command line when running the script* unle
 
 ### Other information
 
+If you have access to the `resourcegroupstaggingapi`, you can comment line 76 and uncomment line 77, which may provide more success.
+
 `awscli` supports multiple resources in API calls, and I believe in some cases can support up to 1,000 resource IDs or ARNs.
 
 Since AWS APIs are optimized for this, if you need to tag 1,000 EC2 instances, it would be much quicker to get a list of those instances and pass them all at once, rather than making a separate API call to tag
