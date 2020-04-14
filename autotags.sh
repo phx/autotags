@@ -74,6 +74,7 @@ apply_tags() {
   # Other APIs:
   else
     aws "$API" tag-resources --resource-arn-list "$RESOURCES" --tags="${KEY}",Value="${VALUE}"
+    # aws resourcegroupstaggingapi tag-resources --resource-arn-list "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   fi
 }
 
