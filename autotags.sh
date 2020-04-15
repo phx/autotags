@@ -3,7 +3,7 @@
 set -e
 
 FILE="${FILE:-"tags.csv"}"
-RESOURCES="${RESOURCES:-"${@:2}"}"
+RESOURCES=${RESOURCES:-${@:2}}
 
 usage() {
   echo "
@@ -62,20 +62,20 @@ fi
 apply_tags() {
   # AWS Certificate Manager:
   if [[ $API = 'acm' ]]; then
-    aws acm add-tags-to-certificate --certificate-arn "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws acm add-tags-to-certificate --certificate-arn $RESOURCES --tags Key="${KEY}",Value="${VALUE}"
   # EC2:
   elif [[ $API = 'ec2' ]]; then
-    aws ec2 create-tags --resources "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws ec2 create-tags --resources $RESOURCES --tags Key="${KEY}",Value="${VALUE}"
   # ELB:
   elif [[ $API = 'elb' ]]; then
   # ELBv2:
-    aws elb add-tags --load-balancer-names "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws elb add-tags --load-balancer-names $RESOURCES --tags Key="${KEY}",Value="${VALUE}"
   elif [[ $API = 'elbv2' ]]; then
-    aws elbv2 add-tags --resource-arns "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws elbv2 add-tags --resource-arns $RESOURCES --tags Key="${KEY}",Value="${VALUE}"
   # Other APIs:
   else
-    aws "$API" tag-resources --resource-arn-list "$RESOURCES" --tags="${KEY}",Value="${VALUE}"
-    #aws resourcegroupstaggingapi tag-resources --resource-arn-list "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    aws "$API" tag-resources --resource-arn-list $RESOURCES --tags="${KEY}",Value="${VALUE}"
+    #aws resourcegroupstaggingapi tag-resources --resource-arn-list $RESOURCES --tags Key="${KEY}",Value="${VALUE}"
   fi
 }
 
@@ -98,9 +98,9 @@ json_tags() {
   echo '}' >> "$json"
   jq '(..|select(type == "number")) |= tostring' "$json" > tmp && mv tmp "$json"
   if [[ $API = 'cloudfront' ]]; then
-    aws cloudfront tag-resource --resource "$RESOURCES" --tags file://$json
+    aws cloudfront tag-resource --resource $RESOURCES --tags file://$json
   elif [[ ($API = 's3') || ($API = 's3api') ]]; then
-    aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
+    aws s3api put-bucket-tagging --bucket $RESOURCES --tagging file://$json
   fi
   cat "$json" && rm -f "$json"
 }
