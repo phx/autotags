@@ -79,10 +79,39 @@ apply_tags() {
   fi
 }
 
+json_tags() {
+  json="tags.json"
+  echo '{' > "$json"
+  if [[ $API = 'cloudfront' ]]; then
+    echo '   "Items": [' >> "$json"
+  elif [[ ($API = 's3') || ($API = 's3api') ]]; then
+    echo '   "TagSet": [' >> "$json"
+  fi
+  # That point when you realized maybe python would have been a better choice:
+  mlr --c2j cat "$FILE" |\
+    sed -e "s/\", \"/\",\\n\"/g;s/{/{\n/;s/}/\n}/" |\
+    awk '{$1=$1}1' |\
+    sed 's/{/     {/g;s/"Key/       "Key/g;s/"Value/       "Value/g;s/}/     },/g' >> "$json"
+  head -n -1 "$json" > tmp && mv tmp "$json"
+  echo '     }' >> "$json"
+  echo '   ]' >> "$json"
+  echo '}' >> "$json"
+  jq '(..|select(type == "number")) |= tostring' "$json" > tmp && mv tmp "$json"
+  if [[ $API = 'cloudfront' ]]; then
+    aws cloudfront tag-resource --resource "$RESOURCES" --tags file://$json
+  elif [[ ($API = 's3') || ($API = 's3api') ]]; then
+    aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
+  fi
+  cat "$json" && rm -f "$json"
+}
+
+###############################################################################
 # Start tagging:
+###############################################################################
+
 echo "RESOURCES: ${RESOURCES}"
 
-# CLOUDFRONT AND S3:
+# Cloudfront and S3:
 if [[ ($API = 's3') || ($API = 's3api') || ($API = 'cloudfront') ]]; then
   if ! command -v mlr >/dev/null; then
     echo 'miller package is required for s3 tagging.'
@@ -94,26 +123,8 @@ if [[ ($API = 's3') || ($API = 's3api') || ($API = 'cloudfront') ]]; then
     echo 'please install jq before proceeding.'
     exit 1
   fi
-  json="tags.json"
-  echo '{' > "$json"
-  if [[ $API = 'cloudfront' ]]; then
-    echo '   "Items": [' >> "$json"
-  else
-    echo '   "TagSet": [' >> "$json"
-  fi
-  mlr --c2j cat "$FILE" | sed -e "s/\", \"/\",\\n\"/g;s/{/{\n/;s/}/\n}/" | awk '{$1=$1}1' | sed 's/{/     {/g;s/"Key/       "Key/g;s/"Value/       "Value/g;s/}/     },/g' >> "$json"
-  head -n -1 "$json" > tmp && mv tmp "$json"
-  echo '     }' >> "$json"
-  echo '   ]' >> "$json"
-  echo '}' >> "$json"
-  jq '(..|select(type == "number")) |= tostring' "$json" > tmp && mv tmp "$json"
-  if [[ $API = 'cloudfront' ]]; then
-    aws cloudfront tag-resource --resource "$RESOURCES" --tags file://$json
-  elif [[ ($API = 's3') || ($API = 's3api') ]]; then
-    aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
-  fi
-  rm -f "$json"
-# EVERYTHING ELSE:
+  json_tags
+# Every other API:
 else
   awk 'NR>1' "$FILE" | while read line; do
     # Attempt to allow for quoted cell values:
