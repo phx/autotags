@@ -35,6 +35,7 @@ Examples:
 
 Tested APIs:
 acm
+cloudfront
 ec2
 elb
 elbv2

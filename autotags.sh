@@ -28,6 +28,7 @@ Examples:
 
 Verified supported APIs:
 acm
+cloudfront
 ec2
 elb
 elbv2
@@ -74,15 +75,15 @@ apply_tags() {
   # Other APIs:
   else
     aws "$API" tag-resources --resource-arn-list "$RESOURCES" --tags="${KEY}",Value="${VALUE}"
-    # aws resourcegroupstaggingapi tag-resources --resource-arn-list "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
+    #aws resourcegroupstaggingapi tag-resources --resource-arn-list "$RESOURCES" --tags Key="${KEY}",Value="${VALUE}"
   fi
 }
 
 # Start tagging:
 echo "RESOURCES: ${RESOURCES}"
 
-# S3:
-if [[ ($API = 's3') || ($API = 's3api') ]]; then
+# CLOUDFRONT AND S3:
+if [[ ($API = 's3') || ($API = 's3api') || ($API = 'cloudfront') ]]; then
   if ! command -v mlr >/dev/null; then
     echo 'miller package is required for s3 tagging.'
     echo 'please install miller before proceeding.'
@@ -95,15 +96,22 @@ if [[ ($API = 's3') || ($API = 's3api') ]]; then
   fi
   json="tags.json"
   echo '{' > "$json"
-  echo '   "TagSet": [' >> "$json"
-  #mlr --c2j --jlistwrap cat "$FILE" >> "tags.json"
+  if [[ $API = 'cloudfront' ]]; then
+    echo '   "Items": [' >> "$json"
+  else
+    echo '   "TagSet": [' >> "$json"
+  fi
   mlr --c2j cat "$FILE" | sed -e "s/\", \"/\",\\n\"/g;s/{/{\n/;s/}/\n}/" | awk '{$1=$1}1' | sed 's/{/     {/g;s/"Key/       "Key/g;s/"Value/       "Value/g;s/}/     },/g' >> "$json"
   head -n -1 "$json" > tmp && mv tmp "$json"
   echo '     }' >> "$json"
   echo '   ]' >> "$json"
   echo '}' >> "$json"
   jq '(..|select(type == "number")) |= tostring' "$json" > tmp && mv tmp "$json"
-  aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
+  if [[ $API = 'cloudfront' ]]; then
+    aws cloudfront tag-resource --resource "$RESOURCES" --tags file://$json
+  elif [[ ($API = 's3') || ($API = 's3api') ]]; then
+    aws s3api put-bucket-tagging --bucket "$RESOURCES" --tagging file://$json
+  fi
   rm -f "$json"
 # EVERYTHING ELSE:
 else
